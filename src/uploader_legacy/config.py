@@ -71,7 +71,10 @@ def prompt_and_save(validate: Callable[[str], None] | None = None) -> Config:
     print("No database configuration found.")
     print("The DSN is saved locally with owner-only permissions.")
     while True:
-        dsn = getpass.getpass("Postgres DSN: ").strip()
+        try:
+            dsn = getpass.getpass("Postgres DSN: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            raise SystemExit("No DSN was entered; setup cancelled.") from None
         if not dsn:
             print("A Postgres DSN is required.")
             continue
