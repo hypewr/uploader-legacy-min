@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from typing import Any
 
 from selenium import webdriver
@@ -155,7 +156,17 @@ def open_authenticated(cookies_text: str, proxy: dict[str, Any] | None, url: str
         print("=" * 64)
         try:
             input()
-        except (EOFError, KeyboardInterrupt):
+        except EOFError:
+            # Some uvx/terminal launchers do not provide a readable stdin.
+            # Do not interpret that as a request to close the browser: keep the
+            # session alive and let the user terminate it with Ctrl-C.
+            print("\nTerminal input is unavailable; press Ctrl-C here to close the browser.")
+            try:
+                while True:
+                    time.sleep(3600)
+            except KeyboardInterrupt:
+                pass
+        except KeyboardInterrupt:
             pass
     finally:
         if driver is not None:
