@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from uploader_legacy import config
+from uploader_legacy.crypto import decrypt_dsn, encrypt_dsn
 from uploader_legacy.browser import parse_cookies
 
 
@@ -69,6 +70,22 @@ class ConfigTests(unittest.TestCase):
                 mode = stat.S_IMODE(os.stat(config.CONFIG_PATH).st_mode)
                 self.assertEqual(mode, 0o600)
                 self.assertEqual(config.load().dsn, "postgresql://db/fonya")
+
+
+class CryptoTests(unittest.TestCase):
+    def test_encrypted_dsn_round_trip_and_wrong_passphrase(self):
+        payload = encrypt_dsn("postgresql://alice:password@db/fonya", "correct horse")
+        self.assertEqual(
+            decrypt_dsn(payload, "correct horse"),
+            "postgresql://alice:password@db/fonya",
+        )
+        with self.assertRaises(ValueError):
+            decrypt_dsn(payload, "wrong horse")
+
+    def test_ciphertext_does_not_contain_plaintext(self):
+        dsn = "postgresql://alice:unique-production-password@db/fonya"
+        payload = encrypt_dsn(dsn, "passphrase")
+        self.assertNotIn("unique-production-password", json.dumps(payload))
 
 
 if __name__ == "__main__":

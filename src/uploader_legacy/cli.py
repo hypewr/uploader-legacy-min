@@ -26,6 +26,8 @@ def _config_command(arguments: list[str]) -> int:
         saved = config.load()
         print(f"Configuration path: {config.CONFIG_PATH}")
         print(f"DSN: {config.redacted_dsn(saved.dsn)}")
+        if not saved.dsn and config.crypto.load_payload(config.BUNDLED_DSN_PATH) is not None:
+            print("Encrypted DSN payload: available (passphrase required on first use)")
         return 0
     if arguments[0] == "path":
         print(config.CONFIG_PATH)

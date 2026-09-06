@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "kdf": "scrypt",
+  "salt": "23KVnCtreNetJ8n85NIhmA==",
+  "nonce": "ePwty4i9zHbHGjkd",
+  "ciphertext": "zF-i3Sz6785m3lMXEUlB_XWzHtCR5F3fW2MH6Q8UVapQhv7e-L6ztKh9X0H8cFKoLbUVuXc1nv0qD5qZcgXC8L6f7Rj-mqbD0ghxuv2qyJ6EEh7fOg=="
+}

@@ -7,15 +7,19 @@ import json
 import os
 import tempfile
 from dataclasses import dataclass
+from importlib.resources import files
 from pathlib import Path
 from typing import Callable
 from urllib.parse import urlsplit
+
+from . import crypto
 
 
 CONFIG_DIR = Path(
     os.environ.get("UPLOADER_LEGACY_CONFIG_DIR", "~/.config/uploader-legacy")
 ).expanduser()
 CONFIG_PATH = CONFIG_DIR / "config.json"
+BUNDLED_DSN_PATH = files("uploader_legacy").joinpath("production_dsn.enc")
 
 
 @dataclass
@@ -90,9 +94,39 @@ def prompt_and_save(validate: Callable[[str], None] | None = None) -> Config:
         return candidate
 
 
+def prompt_encrypted_and_save(validate: Callable[[str], None] | None = None) -> Config:
+    """Unlock the bundled DSN, validate it, and save it locally."""
+    payload = crypto.load_payload(BUNDLED_DSN_PATH)
+    if payload is None:
+        return prompt_and_save(validate=validate)
+
+    print("An encrypted database configuration is bundled with this tool.")
+    print("The passphrase is not stored locally or sent to the database.")
+    while True:
+        try:
+            passphrase = getpass.getpass("DSN passphrase: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            raise SystemExit("No passphrase was entered; setup cancelled.") from None
+        try:
+            dsn = crypto.decrypt_dsn(payload, passphrase)
+        except ValueError as exc:
+            print(str(exc))
+            continue
+        if validate is not None:
+            try:
+                validate(dsn)
+            except Exception:
+                print("The unlocked DSN could not connect. Check network access and try again.")
+                continue
+        candidate = Config(dsn=dsn)
+        save(candidate)
+        print(f"Configuration saved to {CONFIG_PATH}")
+        return candidate
+
+
 def ensure(validate: Callable[[str], None] | None = None) -> Config:
     config = load()
-    return config if config.dsn else prompt_and_save(validate=validate)
+    return config if config.dsn else prompt_encrypted_and_save(validate=validate)
 
 
 def redacted_dsn(dsn: str) -> str:

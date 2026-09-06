@@ -13,9 +13,21 @@ uvx --from git+https://github.com/hypewr/uploader-legacy-min.git \
     studio 9b358f3iivg2p2jegu
 ```
 
-The first invocation asks for the Postgres DSN with hidden input. It stores the
-DSN at `~/.config/uploader-legacy/config.json` with owner-only permissions.
-Later invocations reuse it without prompting.
+The first invocation asks for the DSN passphrase with hidden input. This package
+can carry an encrypted production DSN (`production_dsn.enc`) without carrying
+the plaintext credential. It decrypts the DSN in memory, verifies the database
+connection, and stores it at `~/.config/uploader-legacy/config.json` with
+owner-only permissions. Later invocations reuse the local value without
+prompting.
+
+This is encryption, not hashing: a hash cannot be decoded. Anyone who has both
+the public repository and the passphrase can use the database credential. Use a
+least-privilege database role for this tool and send the passphrase through a
+separate trusted channel. The passphrase itself is never committed or saved by
+the tool.
+
+If no encrypted payload is bundled, first use instead asks directly for the
+Postgres DSN.
 
 The workstation must have Google Chrome or Chromium installed. Selenium
 Manager downloads the matching ChromeDriver automatically on first launch.
