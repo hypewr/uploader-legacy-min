@@ -33,6 +33,7 @@ class CookieTests(unittest.TestCase):
                         "value": "secret",
                         "domain": ".tiktok.com",
                         "expirationDate": 1893456000,
+                        "sameSite": "no_restriction",
                         "hostOnly": False,
                         "storeId": "0",
                     }
@@ -42,6 +43,7 @@ class CookieTests(unittest.TestCase):
         self.assertEqual(cookies[0]["expiry"], 1893456000)
         self.assertNotIn("hostOnly", cookies[0])
         self.assertNotIn("storeId", cookies[0])
+        self.assertEqual(cookies[0]["sameSite"], "None")
 
 
 class ConfigTests(unittest.TestCase):

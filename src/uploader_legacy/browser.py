@@ -42,6 +42,18 @@ def parse_cookies(content: str) -> list[dict[str, Any]]:
                     cookie["expiry"] = int(item["expirationDate"])
                 except (TypeError, ValueError):
                     pass
+            if "sameSite" in cookie:
+                same_site = str(cookie["sameSite"]).lower()
+                same_site = {
+                    "lax": "Lax",
+                    "strict": "Strict",
+                    "no_restriction": "None",
+                    "none": "None",
+                }.get(same_site)
+                if same_site is None:
+                    cookie.pop("sameSite", None)
+                else:
+                    cookie["sameSite"] = same_site
             cookies.append(cookie)
         return cookies
 
@@ -95,9 +107,10 @@ def _chrome_options(proxy: dict[str, Any] | None) -> tuple[Options, ProxyRelay |
 
 
 def open_authenticated(cookies_text: str, proxy: dict[str, Any] | None, url: str) -> None:
-    options, relay = _chrome_options(proxy)
+    relay = None
     driver = None
     try:
+        options, relay = _chrome_options(proxy)
         try:
             driver = webdriver.Chrome(options=options)
         except WebDriverException as exc:

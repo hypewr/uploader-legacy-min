@@ -69,7 +69,7 @@ def save(config: Config) -> None:
 def prompt_and_save(validate: Callable[[str], None] | None = None) -> Config:
     """Ask for a DSN, optionally validate it, then persist it."""
     print("No database configuration found.")
-    print("The DSN is saved locally with owner-only permissions.")
+    print("The DSN is saved locally with owner-only permissions where supported.")
     while True:
         try:
             dsn = getpass.getpass("Postgres DSN: ").strip()
