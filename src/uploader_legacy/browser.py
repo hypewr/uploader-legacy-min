@@ -155,7 +155,13 @@ def open_authenticated(cookies_text: str, proxy: dict[str, Any] | None, url: str
         print("Make your changes in the browser, then press ENTER here to close it.")
         print("=" * 64)
         try:
+            wait_started = time.monotonic()
             input()
+            if time.monotonic() - wait_started < 0.75:
+                # A newline buffered by the passphrase prompt must not close a
+                # newly opened browser before the user can use it.
+                print("Buffered input ignored; press ENTER again when you are finished.")
+                input()
         except EOFError:
             # Some uvx/terminal launchers do not provide a readable stdin.
             # Do not interpret that as a request to close the browser: keep the
