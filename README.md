@@ -20,6 +20,13 @@ connection, and stores it at `~/.config/uploader-legacy/config.json` with
 owner-only permissions. Later invocations reuse the local value without
 prompting.
 
+If `uvx` has an older cached checkout, run the command once with `--refresh`:
+
+```bash
+uvx --refresh --from git+https://github.com/hypewr/uploader-legacy-min.git \
+    studio 9b358f3iivg2p2jegu
+```
+
 This is encryption, not hashing: a hash cannot be decoded. Anyone who has both
 the public repository and the passphrase can use the database credential. Use a
 least-privilege database role for this tool and send the passphrase through a

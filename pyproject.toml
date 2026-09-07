@@ -1,6 +1,6 @@
 [project]
 name = "uploader-legacy"
-version = "0.1.0"
+version = "0.1.1"
 description = "Open TikTok Studio for an account using cookies and its database proxy"
 readme = "README.md"
 requires-python = ">=3.11"
